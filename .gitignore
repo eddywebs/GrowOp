@@ -9,3 +9,6 @@ node_modules/
 
 #OSX hidden metadata file
 .DS_Store
+
+#forgent the venv
+venv/
