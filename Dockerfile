@@ -18,7 +18,7 @@ COPY ./requirements.txt /requirements.txt
 RUN pip install -r /requirements.txt
 
 #install gip 
-#todo using wiringPi or move it to requirements.txt
+#todo use wiringPi or move it to requirements.txt
 RUN pip install RPi.GPIO
 
 # This will copy all files in our root to the working  directory in the container

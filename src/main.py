@@ -1,8 +1,49 @@
-import RPi.GPIO as GPIO
 import logging, sys
+from time import sleep
+import importlib.util
+
+
+#log config starts here 
+logging.basicConfig(filename="growop.log", level=logging.DEBUG)
+logging.Formatter('%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
+
+
+#log config code ends here
+
+try:
+    importlib.util.find_spec('RPi.GPIO')
+    logging.debug('found the original Rpi.GPIO')
+except ImportError:
+    import os
+    os.environ['GPIOZERO_PIN_FACTORY'] = os.environ.get('GPIOZERO_PIN_FACTORY', 'mock')
+    logging.debug('fake it till you make bruh')
+    
+import gpiozero
+from gpiozero import Device, Button, LED
+
 from flask import Flask
 app = Flask(__name__)
 app.config.from_pyfile('dev.cfg')
+relay17 = LED(17)
+
+@app.route('/')
+def hello_world():
+    return 'Hello World! from fask'
+
+@app.route('/on17')
+def turn_on17():
+    relay17.on()
+    logging.info('turned on relay 17')
+    logging.debug(relay17.value)
+    return 'turned on relay 17'
+
+@app.route('/check17')
+def check_r17():
+    foo = relay17.value
+    return str(foo)
+
+
+############################################
 
 Relay_channel = [17, 18]
 
@@ -24,9 +65,6 @@ def destroy():
     GPIO.output(Relay_channel, GPIO.LOW)
     GPIO.cleanup()
 
-@app.route('/')
-def hello_world():
-    return 'Hello World! from fask'
 
 @app.route('/on')
 def turn_on1():
@@ -48,12 +86,14 @@ def cleanup():
     logging.info('cleaning up')
     destroy()
     return 'cleaing up'
+######################################
+
 
 if __name__ == '__main__':
     try:
-        setup()
+        #setup()
         logging.debug('initialized the gpio setup')
-        app.run(host='0.0.0.0', port=80)
+        app.run(host='0.0.0.0', port=8080)
         logging.info('ok initialized all the stuff here it goes')
     except KeyboardInterrupt: # catch *all* exceptions
         destroy()
